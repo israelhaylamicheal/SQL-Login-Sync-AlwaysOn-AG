@@ -1,9 +1,9 @@
-﻿Clear-Host
+Clear-Host
 
 # Define availability group listeners
 $Listeners = @(
-    "Listener01",
-    "Listener02"
+    "LSNSQL01",
+    "LSNLABSQL01"
 )
 
 # Query to get availability replicas and their roles
@@ -55,19 +55,9 @@ foreach ($Listener in $Listeners) {
 
                         # Compare SID values and drop login if mismatched
                         if ($PrimarySidChecksum.Rows[$i].sid_checksum -ne $SecondarySidChecksum.sid_checksum) {
-                            Write-Host "Dropping Login [$($PrimarySidChecksum.Rows[$i].name)]".PadRight(40) " from $TargetInstance" 
+                            Write-Host "Dropping and creating Login [$($PrimarySidChecksum.Rows[$i].name)]".PadRight(40) " on $TargetInstance" 
                             
-                            $SqlCmd3 = "
-                                        IF EXISTS (SELECT 1 FROM master.sys.server_principals WHERE name = '$($PrimarySidChecksum.Rows[$i].name)')
-                                            BEGIN
-                                                DROP LOGIN [$($PrimarySidChecksum.Rows[$i].name)]
-                                            END
-                                        ELSE
-                                            BEGIN
-                                                PRINT 'The login [$($PrimarySidChecksum.Rows[$i].name)] does not exist on $TargetInstance.'
-                                            END
-                                        "
-                            Invoke-Sqlcmd -ServerInstance $TargetInstance -Database master -Query $SqlCmd3 -TrustServerCertificate -Verbose
+                            Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -Login $($PrimarySidChecksum.Rows[$i].name) -Force -ExcludePermissionSync -ErrorAction Stop -Verbose
                         }
 
                       }
@@ -84,6 +74,7 @@ foreach ($Listener in $Listeners) {
         # Copy logins from primary to secondary replicas
         foreach ($TargetInstance in $TargetInstances) {
             try {
+                Write-Host "Copying logins to target instance : $($TargetInstance)"
                 Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -ExcludeSystemLogins -ExcludePermissionSync -ErrorAction Stop -Verbose
 
             } catch {
