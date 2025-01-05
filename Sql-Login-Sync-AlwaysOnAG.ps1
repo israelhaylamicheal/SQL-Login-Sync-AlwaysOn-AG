@@ -2,8 +2,8 @@ Clear-Host
 
 # Define availability group listeners
 $Listeners = @(
-    "LSNSQL01",
-    "LSNLABSQL01"
+    "Listener01",
+    "Listener02"
 )
 
 # Query to get availability replicas and their roles
