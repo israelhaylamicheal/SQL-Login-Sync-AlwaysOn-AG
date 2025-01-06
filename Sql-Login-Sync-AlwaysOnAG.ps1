@@ -57,7 +57,7 @@ foreach ($Listener in $Listeners) {
                         if ($PrimarySidChecksum.Rows[$i].sid_checksum -ne $SecondarySidChecksum.sid_checksum) {
                             Write-Host "Dropping and creating Login [$($PrimarySidChecksum.Rows[$i].name)]".PadRight(40) " on $TargetInstance" 
                             
-                            Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -Login $($PrimarySidChecksum.Rows[$i].name) -Force -ExcludePermissionSync -ErrorAction Stop -Verbose
+                            Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -Login $($PrimarySidChecksum.Rows[$i].name) -Force -ErrorAction Stop -Verbose
                         }
 
                       }
@@ -75,7 +75,7 @@ foreach ($Listener in $Listeners) {
         foreach ($TargetInstance in $TargetInstances) {
             try {
                 Write-Host "Copying logins to target instance : $($TargetInstance)"
-                Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -ExcludeSystemLogins -ExcludePermissionSync -ErrorAction Stop -Verbose
+                Copy-DbaLogin -Source $SourceInstance -Destination $TargetInstance -ExcludeSystemLogins -ErrorAction Stop -Verbose
 
             } catch {
                 Write-Error "Error copying logins from [$SourceInstance] to [$TargetInstance]: $_"
