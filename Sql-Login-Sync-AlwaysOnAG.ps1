@@ -1,5 +1,8 @@
 Clear-Host
 
+Set-DbatoolsConfig -FullName sql.connection.trustcert -Value $true -Register
+Set-DbatoolsConfig -FullName sql.connection.encrypt -Value $false -Register 
+
 # Define availability group listeners
 $Listeners = @(
     "Listener01",
